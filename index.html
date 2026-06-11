@@ -12,9 +12,7 @@
 <body>
   <header class="topbar">
     <div class="brand">
-      <span class="brand-mark">✎</span>
       <span class="brand-text">Layout Builder</span>
-      <span class="brand-sub">— wireframe prototype</span>
     </div>
     <div class="topbar-actions">
       <button id="clearCanvas" class="ghost-btn" title="Remove all components from canvas">Clear canvas</button>
@@ -39,12 +37,12 @@
       <div class="palette-section">
         <div class="section-row">
           <h3>Your components</h3>
-          <div style="display:flex; gap:6px;">
-            <button id="openAddCustom" class="add-btn" title="Describe a new component">+ Describe</button>
-            <button id="openDrawCustom" class="add-btn" title="Sketch a new component">✎ Draw</button>
-          </div>
         </div>
         <p class="hint small">Describe it in words, or sketch it freehand if you can't.</p>
+        <div style="display:flex; gap:6px; margin-top:8px;">
+          <button id="openAddCustom" class="add-btn" title="Describe a new component">+ Describe</button>
+          <button id="openDrawCustom" class="add-btn" title="Sketch a new component">✎ Draw</button>
+        </div>
         <div class="palette-grid" id="customList"><!-- populated by JS --></div>
       </div>
     </aside>
