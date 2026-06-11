@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Layout Builder — Wireframe Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">✎</span>
+      <span class="brand-text">Layout Builder</span>
+      <span class="brand-sub">— wireframe prototype</span>
+    </div>
+    <div class="topbar-actions">
+      <button id="clearCanvas" class="ghost-btn" title="Remove all components from canvas">Clear canvas</button>
+      <button id="toggleGrid" class="ghost-btn" title="Toggle background grid">Grid</button>
+      <button id="exportLayout" class="ghost-btn" title="Export current layout as JSON">Export</button>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <!-- LEFT: COMPONENT PALETTE -->
+    <aside class="palette" aria-label="Component palette">
+      <div class="palette-header">
+        <h2>Components</h2>
+        <p class="hint">Drag any component onto the canvas. You can reorder or remove on the canvas too.</p>
+      </div>
+
+      <div class="palette-section">
+        <h3>Built-in</h3>
+        <div class="palette-grid" id="builtInList"><!-- populated by JS --></div>
+      </div>
+
+      <div class="palette-section">
+        <div class="section-row">
+          <h3>Your components</h3>
+          <div style="display:flex; gap:6px;">
+            <button id="openAddCustom" class="add-btn" title="Describe a new component">+ Describe</button>
+            <button id="openDrawCustom" class="add-btn" title="Sketch a new component">✎ Draw</button>
+          </div>
+        </div>
+        <p class="hint small">Describe it in words, or sketch it freehand if you can't.</p>
+        <div class="palette-grid" id="customList"><!-- populated by JS --></div>
+      </div>
+    </aside>
+
+    <!-- CENTER: CANVAS -->
+    <section class="canvas-wrap">
+      <div class="canvas-toolbar">
+        <span class="canvas-label">Your page</span>
+        <span id="canvasCount" class="canvas-count">0 components</span>
+      </div>
+      <div id="canvas" class="canvas grid-on" aria-label="Layout canvas">
+        <div class="empty-state" id="emptyState">
+          <div class="empty-sketch">▢ ▢ ▢</div>
+          <p class="empty-title">Drop components here</p>
+          <p class="empty-sub">Drag from the left palette to start building your layout.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- MODAL: DESCRIBE A NEW COMPONENT -->
+  <div class="modal-backdrop hidden" id="modalBackdrop">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <h3 id="modalTitle">Describe a new component</h3>
+      <p class="hint">Give it a short name and a description of what it should look like or do. We'll render a wireframe placeholder you can drag onto the canvas.</p>
+      <label class="field">
+        <span>Name</span>
+        <input id="customName" type="text" placeholder="e.g. Comments thread" maxlength="40" />
+      </label>
+      <label class="field">
+        <span>Description</span>
+        <textarea id="customDesc" rows="3" placeholder="e.g. A list of comments with avatars, name, timestamp, and reply button."></textarea>
+      </label>
+      <label class="field">
+        <span>Shape</span>
+        <select id="customShape">
+          <option value="block">Block (default rectangle)</option>
+          <option value="bar">Bar (short, horizontal strip)</option>
+          <option value="card">Card (small rounded card)</option>
+          <option value="panel">Panel (tall side panel)</option>
+          <option value="circle">Circle (avatar / icon)</option>
+        </select>
+      </label>
+      <div class="modal-actions">
+        <button id="cancelCustom" class="ghost-btn">Cancel</button>
+        <button id="saveCustom" class="primary-btn">Add to palette</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: DRAW A COMPONENT -->
+  <div class="modal-backdrop hidden" id="drawBackdrop">
+    <div class="modal modal-wide" role="dialog" aria-modal="true" aria-labelledby="drawTitle">
+      <h3 id="drawTitle">Sketch a new component</h3>
+      <p class="hint">Draw what your component should look like. Use the eraser to fix mistakes. The sketch becomes a draggable component you can drop on the canvas.</p>
+
+      <div class="draw-toolbar">
+        <div class="tool-group">
+          <button class="tool-btn active" data-tool="pen" title="Pen">✎</button>
+          <button class="tool-btn" data-tool="eraser" title="Eraser">⌫</button>
+        </div>
+        <div class="tool-group">
+          <span class="tool-label">Stroke</span>
+          <button class="size-btn active" data-size="2"  title="Thin"><span class="dot d-2"></span></button>
+          <button class="size-btn" data-size="4"  title="Medium"><span class="dot d-4"></span></button>
+          <button class="size-btn" data-size="8"  title="Thick"><span class="dot d-8"></span></button>
+        </div>
+        <div class="tool-group">
+          <span class="tool-label">Color</span>
+          <button class="color-btn active" data-color="#3d5af1" style="background:#3d5af1"></button>
+          <button class="color-btn" data-color="#2c3fb8" style="background:#2c3fb8"></button>
+          <button class="color-btn" data-color="#1a1a1a" style="background:#1a1a1a"></button>
+        </div>
+        <div class="tool-group" style="margin-left:auto;">
+          <button id="drawUndo" class="ghost-btn small" title="Undo last stroke">Undo</button>
+          <button id="drawClear" class="ghost-btn small" title="Clear canvas">Clear</button>
+        </div>
+      </div>
+
+      <div class="draw-canvas-wrap">
+        <canvas id="drawCanvas" width="640" height="360"></canvas>
+      </div>
+
+      <label class="field">
+        <span>Name</span>
+        <input id="drawName" type="text" placeholder="e.g. Rating widget" maxlength="40" />
+      </label>
+
+      <div class="modal-actions">
+        <button id="cancelDraw" class="ghost-btn">Cancel</button>
+        <button id="saveDraw" class="primary-btn">Add to palette</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
